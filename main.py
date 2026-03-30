@@ -1,19 +1,8 @@
-from src.models.numpy_net import conv2D 
+from src.models.numpy_net import conv2D, max_pool2d, forward
 import numpy as np 
 
+image = np.random.randn(8, 8, 3)    # small RGB image
+filters = np.random.randn(3, 3, 3, 8)  # 8 filters, each 3x3x3
 
-image = np.array([
-    [10, 50, 90, 130], 
-    [20, 60, 100, 140],
-    [30, 70, 110, 150],
-    [40, 80, 120, 160]
-])
-
-filterr = np.array([
-    [1, 0], 
-    [0, -1]
-])
-
-conv = conv2D(image=image, filterr=filterr, stride=1)
-
-print(f"the convolution produced: {conv}")
+output = forward(image, filters)
+print(output.shape)  # work out what this should be before running it
