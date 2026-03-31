@@ -55,11 +55,37 @@ def forward(image: np.ndarray, filters: np.ndarray) -> np.ndarray:
     return pooled 
 
 def softmax(x: np.ndarray) -> np.ndarray: 
-    result = []
-    for i in range(x): 
-        result[i] = np.exp(x[i]) / sum(np.exp(x))
-    return result 
+    
+    shifted = x - np.max(x)
+    exp_x = np.exp(shifted)
+    return exp_x / np.sum(exp_x)
+
 
 def flatten(x: np.ndarray) -> np.ndarray: 
     h, w, d = x.shape 
     return x.reshape(h * w * d, )
+
+def cross_entropy_loss(probs: np.ndarray, true_class: int) -> float: 
+    p_correct = probs[true_class]
+    loss = -1 * np.log(p_correct + 1e-7)
+    return loss
+
+def relu_backward(dout: np.ndarray, x: np.ndarray) -> np.ndarray: 
+    return dout * (x > 0)
+
+def fc_forward(W: np.ndarray, x: np.ndarray, b: np.ndarray) -> np.ndarray: 
+    output = W @ x
+    output += b
+    return output 
+
+def fc_backward(dout: np.ndarray, x: np.ndarray, W: np.ndarray):
+    # dout: gradient flowing in from ahead
+    # x: original input during forward pass
+    # W: weight matrix
+    # return: dL/dW, dL/db, dL/dx
+    # use the formulas you derived on paper
+    
+    dL_dW = np.outer(dout, x)
+    dL_dx = np.transpose(W) @ dout
+    dL_db = dout
+    return dL_dW, dL_db, dL_dx 
