@@ -1,23 +1,9 @@
-# import torch 
-# from src.models.cnn import TinyCNN
-# from src.training import trainer
-
-# x = torch.randn(1, 1, 28, 28)
-# labels = torch.tensor([0])
-# model = TinyCNN(n_filters=8, n_classes=2)
-
-# loss_history = trainer.train(
-#     model=model, 
-#     n_epochs=20, 
-#     lr=0.01,
-#     images=x, 
-#     labels=labels
-# )
-# print(f"loss history: {loss_history}")
-
 
 from src.data.dataset import get_transform, ChestXrayDataset, get_dataloaders
 from torch.utils.data import random_split
+from src.training.trainer import train
+from src.models.cnn import TinyCNN
+import torch
 
 full_train = ChestXrayDataset(root_dir="data/raw/chest_xray/train", transform=get_transform())
 test_dataset = ChestXrayDataset(root_dir="data/raw/chest_xray/test", transform=get_transform())
@@ -35,14 +21,22 @@ train_loader, test_loader, val_loader = get_dataloaders(
     val_dataset=val_dataset
 )
 
-# print("the dataloaders are ready!!")
-# print(f"len of training set: {len(train_dataset)}")
-# print(f"len of test set: {len(test_dataset)}")
-# print(f"len of validation set: {len(val_dataset)}")
-
 train_imgs, train_labels = next(iter(train_loader))
 print(f"the batch images shape: {train_imgs.shape}")
 print(f"the batch labels shape: {train_labels.shape}")
 print(f"labels: {train_labels}")
 
+# set up the training for the dataloeaders 
+model = TinyCNN(n_filters=8, n_classes=2)
+history = train(
+    model=model, 
+    n_epochs=5, 
+    lr=0.001, 
+    device="cuda" if torch.cuda.is_available() else "cpu", 
+    train_loader=train_loader, 
+    test_loader=test_loader, 
+    val_loader=val_loader
+)
+
+print("training successful")
 
