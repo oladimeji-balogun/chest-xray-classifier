@@ -38,3 +38,37 @@ class TinyCNN(nn.Module):
         x = self.linear(x)
         return x 
     
+    
+
+class ChestXRayCNN(nn.Module):
+    def __init__(
+        self, 
+        n_classes: int, 
+        image_size: int
+    ): 
+        super.__init__()
+
+        # let's start building the network 
+        self.relu = nn.ReLU()
+
+        # the first chain
+        self.conv_1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=2)
+        self.batch_norm_1 = nn.BatchNorm2d(num_features=32)
+        self.max_pooling_1 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        # the second chain
+        self.conv_2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=2)
+        self.batch_norm_2 = nn.BatchNorm2d(num_features=64)
+        self.max_pooling_2 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        # the third chain
+        self.conv_3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1)
+        self.batch_norm_3 = nn.BatchNorm2d(num_features=128)
+        self.max_pooling_3 = nn.MaxPool2d(kernel_size=2, stride=2)
+
+        self.dropout = nn.Dropout(p=0.5)
+        self.flatten = nn.Flatten(start_dim=1)
+
+
+    def forward(self, x: torch.Tensor): 
+        pass 
