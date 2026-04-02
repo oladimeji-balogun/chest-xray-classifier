@@ -48,6 +48,17 @@ class ChestXRayCNN(nn.Module):
     ): 
         super.__init__()
 
+        size_after_conv1 = (image_size - 3) // 2 + 1
+        size_after_pool1 = (size_after_conv1 - 2) // 2 + 1
+
+        size_after_conv2 = (size_after_pool1 - 3) // 2 + 1 
+        size_after_pool2 = (size_after_conv2 - 2) // 2 + 1
+
+        size_after_conv3 = (size_after_pool2 - 3) // 1 + 1
+        size_after_pool3 = (size_after_conv3 - 2) // 2 + 1
+
+        dim_after_flattening = size_after_pool3 * size_after_pool3 * 128 
+        
         # let's start building the network 
         self.relu = nn.ReLU()
 
