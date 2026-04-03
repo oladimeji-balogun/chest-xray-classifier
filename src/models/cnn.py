@@ -46,7 +46,7 @@ class ChestXRayCNN(nn.Module):
         n_classes: int, 
         image_size: int
     ): 
-        super.__init__()
+        super().__init__()
 
         size_after_conv1 = (image_size - 3) // 2 + 1
         size_after_pool1 = (size_after_conv1 - 2) // 2 + 1
@@ -57,29 +57,41 @@ class ChestXRayCNN(nn.Module):
         size_after_conv3 = (size_after_pool2 - 3) // 1 + 1
         size_after_pool3 = (size_after_conv3 - 2) // 2 + 1
 
-        dim_after_flattening = size_after_pool3 * size_after_pool3 * 128 
-        
-        # let's start building the network 
-        self.relu = nn.ReLU()
+        flattened_shape = size_after_pool3 * size_after_pool3 * 128 
 
-        # the first chain
-        self.conv_1 = nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=2)
-        self.batch_norm_1 = nn.BatchNorm2d(num_features=32)
-        self.max_pooling_1 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.block1 = nn.Sequential(
+            nn.Conv2d(in_channels=1, out_channels=32, kernel_size=3, stride=2), 
+            nn.BatchNorm2d(num_features=32), 
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
 
-        # the second chain
-        self.conv_2 = nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=2)
-        self.batch_norm_2 = nn.BatchNorm2d(num_features=64)
-        self.max_pooling_2 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.block2 = nn.Sequential(
+            nn.Conv2d(in_channels=32, out_channels=64, kernel_size=3, stride=2),
+            nn.BatchNorm2d(num_features=64), 
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
 
-        # the third chain
-        self.conv_3 = nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1)
-        self.batch_norm_3 = nn.BatchNorm2d(num_features=128)
-        self.max_pooling_3 = nn.MaxPool2d(kernel_size=2, stride=2)
+        self.block3 = nn.Sequential(
+            nn.Conv2d(in_channels=64, out_channels=128, kernel_size=3, stride=1), 
+            nn.BatchNorm2d(num_features=128),
+            nn.ReLU(),
+            nn.MaxPool2d(kernel_size=2, stride=2)
+        )
 
-        self.dropout = nn.Dropout(p=0.5)
-        self.flatten = nn.Flatten(start_dim=1)
+        self.classifier = nn.Sequential(
+            nn.Flatten(start_dim=1),
+            nn.Dropout(),
+            nn.Linear(in_features=flattened_shape, out_features=n_classes)
+        )
+
+
+
 
 
     def forward(self, x: torch.Tensor): 
-        pass 
+        x = self.block1(x)
+        x = self.block2(x) 
+        x = self.block3(x)
+        return self.classifier(x)
