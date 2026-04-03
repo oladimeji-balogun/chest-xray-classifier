@@ -11,9 +11,14 @@ def train(
         device: torch.device, 
         train_loader: DataLoader, 
         test_loader: DataLoader, 
-        val_loader: DataLoader
+        val_loader: DataLoader, 
+        class_weights: torch.Tensor = None
 ): 
-    criterion = nn.CrossEntropyLoss()
+    if class_weights is not None: 
+        criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
+    else: 
+        criterion = nn.CrossEntropyLoss()
+        
     optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
 
     history = {

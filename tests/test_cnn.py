@@ -1,4 +1,4 @@
-from src.models.cnn import TinyCNN 
+from src.models.cnn import TinyCNN, ChestXRayCNN
 import torch 
 
 class TestTinyCNN:
@@ -25,3 +25,10 @@ class TestTinyCNN:
         import torch.nn.functional as F 
         probs = F.softmax(output, dim=1)
         assert torch.allclose(torch.sum(probs, dim=1), torch.ones(1))
+
+class TestChestXRayCNN: 
+    def test_output_shape(self): 
+        x = torch.randn(1, 1, 224, 224)
+        model = ChestXRayCNN(n_classes=2, image_size=224)
+        output = model(x)
+        assert output.shape == (1, 2)
