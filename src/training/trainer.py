@@ -18,7 +18,7 @@ def train(
         criterion = nn.CrossEntropyLoss(weight=class_weights.to(device))
     else: 
         criterion = nn.CrossEntropyLoss()
-        
+
     optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
 
     history = {
@@ -87,3 +87,17 @@ def train(
         )
 
     return history
+
+
+# add early stopping
+
+class EarlyStopping:
+    def __init__(
+        self, 
+        patience: int = 5, 
+        min_delta: float = 0.001
+    ): 
+        pass 
+
+    def step(self, val_loss: float): 
+        pass 
