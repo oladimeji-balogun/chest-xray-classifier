@@ -1,13 +1,13 @@
 
-from src.data.dataset import get_transform, ChestXrayDataset, get_dataloaders
+from src.data.dataset import get_train_transform, get_val_transform, ChestXrayDataset, get_dataloaders
 from torch.utils.data import random_split
 from src.training.trainer import train
 from src.models.cnn import TinyCNN, ChestXRayCNN
 import torch
 from src.evaluation.metrics import evaluate
 
-full_train = ChestXrayDataset(root_dir="data/raw/chest_xray/train", transform=get_transform(img_size=224))
-test_dataset = ChestXrayDataset(root_dir="data/raw/chest_xray/test", transform=get_transform(img_size=224))
+full_train = ChestXrayDataset(root_dir="data/raw/chest_xray/train", transform=get_train_transform(img_size=224))
+test_dataset = ChestXrayDataset(root_dir="data/raw/chest_xray/test", transform=get_val_transform(img_size=224))
 
 train_size = int(0.8 * len(full_train))
 val_size = len(full_train) - train_size
