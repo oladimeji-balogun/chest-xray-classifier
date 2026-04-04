@@ -61,7 +61,7 @@ weights = torch.tensor([normal_weight, pneumonia_weight], dtype=torch.float32)
 print("started training!")
 history = train(
     model=model, 
-    n_epochs=15, 
+    n_epochs=25, 
     lr=0.0001, 
     device=device, 
     train_loader=train_loader, 
