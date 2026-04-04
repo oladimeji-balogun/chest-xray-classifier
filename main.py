@@ -4,7 +4,7 @@ from torch.utils.data import random_split
 from src.training.trainer import train
 from src.models.cnn import TinyCNN, ChestXRayCNN
 import torch
-from src.evaluation.metrics import evaluate
+from src.evaluation.metrics import evaluate, evaluate_at_threshold
 from sklearn.model_selection import train_test_split
 from torch.utils.data import Subset
 
@@ -51,33 +51,40 @@ device = "cuda" if torch.cuda.is_available() else "cpu"
 model = ChestXRayCNN(n_classes=2, image_size=224).to(device)
 
 
-normal_count = 1341
-pneumonia_count = 3875 
-total = normal_count + pneumonia_count
-normal_weight = total / (2 * normal_count)
-pneumonia_weight = total / (2 * pneumonia_count)
+# normal_count = 1341
+# pneumonia_count = 3875 
+# total = normal_count + pneumonia_count
+# normal_weight = total / (2 * normal_count)
+# pneumonia_weight = total / (2 * pneumonia_count)
 
-weights = torch.tensor([normal_weight, pneumonia_weight], dtype=torch.float32)
-print("started training!")
-history = train(
-    model=model, 
-    n_epochs=25, 
-    lr=0.0001, 
-    device=device, 
-    train_loader=train_loader, 
-    test_loader=test_loader, 
-    val_loader=val_loader, 
-    class_weights=weights
-)
+# weights = torch.tensor([normal_weight, pneumonia_weight], dtype=torch.float32)
+# print("started training!")
+# history = train(
+#     model=model, 
+#     n_epochs=25, 
+#     lr=0.0001, 
+#     device=device, 
+#     train_loader=train_loader, 
+#     test_loader=test_loader, 
+#     val_loader=val_loader, 
+#     class_weights=weights
+# )
 
-print(f"the distribution of the validation set")
-from collections import Counter
-# if using random_split, check label distribution
-labels = [train_dataset.dataset.image_labels[i] for i in val_dataset.indices]
-print(Counter(labels))
+# print(f"the distribution of the validation set")
+# from collections import Counter
+# # if using random_split, check label distribution
+# labels = [train_dataset.dataset.image_labels[i] for i in val_dataset.indices]
+# print(Counter(labels))
 
 print("training successful")
 print("evaluating the best model")
 model.load_state_dict(torch.load('best-model.pth'))
-evaluation = evaluate(model=model, loader=test_loader, device=device)
-print(f"metrics: {evaluation}")
+# evaluation = evaluate(model=model, loader=test_loader, device=device)
+for threshold in [0.3, 0.4, 0.5, 0.6, 0.7]:
+    metrics = evaluate_at_threshold(model, test_loader, device, threshold)
+    print(f"\nThreshold: {threshold}")
+    print(f"Confusion matrix:\n{metrics['confusion_matrix']}")
+    print(f"NORMAL recall: {metrics['normal_recall']:.3f}")
+    print(f"PNEUMONIA recall: {metrics['pneumonia_recall']:.3f}")
+
+# print(f"metrics: {evaluation}")
