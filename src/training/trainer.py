@@ -4,6 +4,31 @@ import torch.nn as nn
 from torch.utils.data import DataLoader
 import torch.nn.functional as F 
 
+
+# add early stopping
+
+class EarlyStopping:
+    def __init__(
+        self, 
+        patience: int = 5, 
+        min_delta: float = 0.001
+    ): 
+        self.patience = patience
+        self.min_delta = min_delta 
+        self.best_loss = float('inf')
+        self.count = 0
+        self.should_stop: bool = False
+
+    def step(self, val_loss: float): 
+        if val_loss < self.best_loss - self.min_delta: 
+            self.best_loss = val_loss
+            self.count = 0 
+        else: 
+            self.count += 1 
+            if self.count >= self.patience: 
+                self.should_stop = True
+
+
 def train(
         model: TinyCNN, 
         n_epochs: int, 
@@ -28,9 +53,12 @@ def train(
     }
     
     model = model.to(device)
+    early_stopping = EarlyStopping(patience=5, min_delta=0.001)
+
+    best_loss = float('inf')
 
     for epoch in range(n_epochs):
-
+        
         # funning over the epochs
         model.train()
         train_loss = 0.0
@@ -86,18 +114,16 @@ def train(
             f"val_accuracy: {val_acc:.4f}"
         )
 
+        if average_val_loss < best_loss: 
+            best_loss = average_val_loss
+            torch.save(model.state_dict(), 'best-model.pth')
+
+        early_stopping.step(val_loss=average_val_loss)
+        if early_stopping.should_stop: 
+            print(f"early stopping at epoch: {epoch + 1}")
+            break
+
+
     return history
 
 
-# add early stopping
-
-class EarlyStopping:
-    def __init__(
-        self, 
-        patience: int = 5, 
-        min_delta: float = 0.001
-    ): 
-        pass 
-
-    def step(self, val_loss: float): 
-        pass 
