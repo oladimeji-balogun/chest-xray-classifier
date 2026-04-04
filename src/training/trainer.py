@@ -45,6 +45,12 @@ def train(
         criterion = nn.CrossEntropyLoss()
 
     optimizer = torch.optim.Adam(params=model.parameters(), lr=lr)
+    scheduler = torch.optim.lr_scheduler.ReduceLROnPlateau(
+        optimizer=optimizer, 
+        mode="min", 
+        factor=0.5, 
+        patience=3
+    )
 
     history = {
         "train_loss": [], 
@@ -122,6 +128,8 @@ def train(
         if early_stopping.should_stop: 
             print(f"early stopping at epoch: {epoch + 1}")
             break
+
+        scheduler.step(average_val_loss)
 
 
     return history
